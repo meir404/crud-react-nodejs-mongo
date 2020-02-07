@@ -4,8 +4,9 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import httpService from '../services/http.service'
 
 export default function TableComponent() {
-  const professions = { 1: 'Carpenter', 2: 'Draw' };
-
+  // const professions = { 1: 'Carpenter', 2: 'Draw' };
+  const [professions, setProfessions] = useState({})
+  const controller = 'persons';
   const [state, setState] = useState({
     columns: [
       { title: 'First Name', field: 'firstName' },
@@ -17,7 +18,18 @@ export default function TableComponent() {
   });
 
   useEffect(() => {
-    httpService.Get('persons', '').then(data => {
+    httpService.Get('professions', '').then(data => {
+      let professionsData = {};
+      data.forEach(d => {
+        professionsData[d._id] = d.text;
+      })
+      setState(prevState => {
+        var columns = [...prevState.columns];
+        columns.find(c => c.title === 'Profession').lookup = professionsData;
+        return { ...prevState, columns };
+      })
+    })
+    httpService.Get(controller, '').then(data => {
       setState(rs => {
         return { ...rs, data };
       })
@@ -25,52 +37,57 @@ export default function TableComponent() {
   }, []);
 
   const onRowAdd = newData =>
-    httpService.Post('data.json', newData).then(
+    httpService.Post(controller, newData).then(res =>
       setState(prevState => {
         const data = [...prevState.data];
-        data.push(newData);
+        data.push(res[0]);
         return { ...prevState, data };
       })
     ).catch(s => alert('error'))
 
 
   const onRowUpdate = (newData, oldData) =>
-    httpService.Put('data.json', newData).then(res =>
+    httpService.Put(controller, newData).then(res => {
+      if (!res.ok) { alert('error'); return; }
       setState(prevState => {
         const data = [...prevState.data];
         data[data.indexOf(oldData)] = newData;
         return { ...prevState, data };
       })
+    }
     ).catch(s => alert('error'))
 
   const onRowDelete = oldData =>
-    httpService.Delete('data.json', `?Id=${oldData.id}`).then(res=>
-  setState(prevState => {
-    const data = [...prevState.data];
-    data.splice(data.indexOf(oldData), 1);
-    return { ...prevState, data };
-  })).catch(s => alert('error'))
+    httpService.Delete(controller, `?id=${oldData._id}`).then(res => {
+      if (!res.ok) { alert('error'); return; }
+      setState(prevState => {
+        const data = [...prevState.data];
+        data.splice(data.indexOf(oldData), 1);
+        return { ...prevState, data };
+      })
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: '#4caf50',
-    },
-    secondary: {
-      main: '#ff9100',
-    },
-  },
-});
+    }).catch(s => alert('error'))
 
-return (
-  <MuiThemeProvider theme={theme} >
-    <MaterialTable
-      title="Crud react mongo"
-      options={{ exportButton: true }}
-      columns={state.columns}
-      data={state.data}
-      editable={{ onRowAdd: onRowAdd, onRowUpdate: onRowUpdate, onRowDelete: onRowDelete }}
-    />
-  </MuiThemeProvider>
-);
+  const theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: '#4caf50',
+      },
+      secondary: {
+        main: '#ff9100',
+      },
+    },
+  });
+
+  return (
+    <MuiThemeProvider theme={theme} >
+      <MaterialTable
+        title="Crud react mongo"
+        options={{ exportButton: true }}
+        columns={state.columns}
+        data={state.data}
+        editable={{ onRowAdd: onRowAdd, onRowUpdate: onRowUpdate, onRowDelete: onRowDelete }}
+      />
+    </MuiThemeProvider>
+  );
 }
