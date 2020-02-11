@@ -1,1 +1,3 @@
 crud-api/node_modules/*
+crud-nest-api/node_modules/*
+crud-nest-api/dist/*
