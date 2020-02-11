@@ -5,14 +5,13 @@ import httpService from '../services/http.service'
 
 export default function TableComponent() {
   // const professions = { 1: 'Carpenter', 2: 'Draw' };
-  const [professions, setProfessions] = useState({})
   const controller = 'persons';
   const [state, setState] = useState({
     columns: [
       { title: 'First Name', field: 'firstName' },
       { title: 'Last Name', field: 'lastName' },
       { title: 'Age', field: 'age', type: 'numeric', defaultSort: 'desc' },
-      { title: 'Profession', field: 'profession', lookup: professions },
+      { title: 'Profession', field: 'profession', lookup: {} },
     ],
     data: []
   });
