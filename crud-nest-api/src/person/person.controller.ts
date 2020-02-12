@@ -1,35 +1,30 @@
 import { Controller, Post, Body, Get, Query, Param, Put, Delete } from '@nestjs/common';
 import { PersonDto } from './dto/person.dto';
+import { PersonService } from './person.service';
 
 @Controller('persons')
 export class PersonController {
+    constructor(private personService: PersonService) { }
 
     @Post()
     create(@Body() createPersonDto: PersonDto) {
-        console.log(createPersonDto)
-        createPersonDto._id = '123';
-        return <PersonDto[]>[createPersonDto];
+        return this.personService.create(createPersonDto);
     }
 
     @Get()
-    findAll(@Query() query: string) {
-        return <PersonDto[]>[{ _id: "13", firstName: "meir", lastName: "lastName", age: 12, profession: "1232" }];
-    }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return <PersonDto>{ _id: "13", firstName: "meir", lastName: "lastName", age: 12, profession: "1232" }
+    async findAll() {
+        return await this.personService.findAll();
     }
 
     @Put()
     update(@Body() updatePersonDto: PersonDto) {
-        console.log(updatePersonDto)
-        return { ok: true };
+        const _id = updatePersonDto._id;
+        delete updatePersonDto._id;
+        return this.personService.update(_id,updatePersonDto);
     }
 
     @Delete()
     remove(@Query('id') _id: string) {
-        console.log(_id)
-        return { ok: true };
+        return this.personService.remove(_id);
     }
 }

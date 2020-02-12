@@ -18,6 +18,7 @@ export default function TableComponent() {
 
   useEffect(() => {
     httpService.Get('professions', '').then(data => {
+
       let professionsData = {};
       data.forEach(d => {
         professionsData[d._id] = d.text;
@@ -39,7 +40,7 @@ export default function TableComponent() {
     httpService.Post(controller, newData).then(res =>
       setState(prevState => {
         const data = [...prevState.data];
-        data.push(res[0]);
+        data.push(Array.isArray(res) ? res[0] : res);
         return { ...prevState, data };
       })
     ).catch(s => alert('error'))

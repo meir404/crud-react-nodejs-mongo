@@ -1,9 +1,13 @@
 import { Controller, Get } from '@nestjs/common';
+import { ProfessionsService } from './professions.service';
 
 @Controller('professions')
 export class ProfessionsController {
+    constructor(private professionService:ProfessionsService) {
+       
+    }
     @Get()
-    getAll() {
-        return [{ _id: "1232", text: "per" }];
+    async getAll() {
+        return await this.professionService.findAll();
     }
 }
